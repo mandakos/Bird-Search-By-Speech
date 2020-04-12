@@ -1,15 +1,14 @@
 <template>
   <div class="birdSearchMain">
     <h1>Lintulajin tunnistus puheesta</h1>
-    <p>Paina nappia, ja sano ilmestyvä lintulaji.</p>
 
-    <button v-on:click="startRecognition">Aloita</button>
+    <button v-on:click="startRecognition" v-bind:disabled="startDisable">Aloita</button>
     <button v-on:click="cancelRecognition" ref="stop" style="display: none;">Peruuta</button>
 
     <div>
-        <p class="phrase" ref="phrase">Lintulaji...</p>
-        <p class="result" ref="result">Oikein vai väärin?</p>
-        <p class="output" ref="output"></p>
+        <p class="speechResult" ref="output"></p>
+        <p class="birdDescription" ref="description"></p>
+        <p class="birdDescriptionAuthor" ref="author"></p>
     </div>
   </div>
 </template>
@@ -20,33 +19,38 @@ import birdNames from '@/json/birdNames.json';
 import birdSpeciesInfo from '@/json/birdSpeciesInfo.json';
 
 export default {
-  name: 'Hello',
+  name: 'BirdSearchBySpeech',
   data: function() {
     return {
-        phrase: '',
-        result: '',
         output: '',
         stopBtn: '',
-        jsonBirdNames: {},
-        jsonLength: '',
-        recognizer: null
+        description: '',
+        author: '',
+        speechInput: '',
+        startDisable: true,
+        jsonBirdNamesSCIandFI: [],
+        jsonBirdNamesFI: [],
+        jsonBirdInfo: [],
+        recognizer: null,
+        speechResult: ''
     };
   },
   methods: {
     startRecognition: function (event) {
       var clickedElement = event.target;
-      var newPhrase = this.newPhrase();
-      this.recognizer = new BirdNameRecognizer(clickedElement, newPhrase, this.phrase, this.result, this.output, this.stopBtn);
+      this.recognizer = new BirdNameRecognizer(clickedElement, this.output, this.stopBtn, this.description, 
+                                              this.jsonBirdNamesFI, this.jsonBirdNamesSCIandFI,
+                                              this.jsonBirdInfo, this.author);
       this.recognizer.startRecognizing();
     },
     cancelRecognition: function () {
       this.recognizer.stopRecognizing();
     },
-    countJsonLength: function () {
-      var count = Object.keys(birdNames).length;
-      this.jsonLength = count;
+    countJsonLength: function (json) {
+      var count = Object.keys(json).length;
+      return count;
     },
-    randomItem: function () {
+    /*randomItem: function () {
       var number = Math.floor(Math.random() * this.jsonLength);
       return number;
     },
@@ -54,7 +58,7 @@ export default {
       var randomArr = this.jsonBirdNames[this.randomItem()];
       var newPhrase = randomArr[1].speciesFI;
       return newPhrase;
-    },
+    },*/
     jsonToArray: function(json) {
       var arr = [];
       for(var i in json)
@@ -63,14 +67,34 @@ export default {
     }
   },
   mounted () {
-    this.phrase = this.$refs.phrase;
-    this.result = this.$refs.result;
     this.output = this.$refs.output;
     this.stopBtn = this.$refs.stop;
-    this.countJsonLength();
+    this.description = this.$refs.description;
+    this.author = this.$refs.author;
   },
   created () {
-    this.jsonBirdNames = this.jsonToArray(birdNames);
+    // create two arrays for finnish names and fi=>sci names
+    var birdArray = this.jsonToArray(birdNames);
+    var birdFinnishNames = [];
+    var birdSCIandFInames = new Map();
+    
+    for(var i = 0; i <= this.countJsonLength(birdNames); i++) {
+      var bird = birdArray[i];
+
+      if(bird) {
+        var nameFi = bird[1].speciesFI.toLowerCase();
+        var nameSci = bird[1].speciesSCI;
+        birdSCIandFInames.set(nameFi, nameSci);
+        birdFinnishNames.push(nameFi);
+      }
+    }
+    this.jsonBirdNamesFI = birdFinnishNames;
+    this.jsonBirdNamesSCIandFI = birdSCIandFInames;
+
+    this.jsonBirdInfo = this.jsonToArray(birdSpeciesInfo);
+    console.log(this.jsonToArray(birdSpeciesInfo));
+
+    this.startDisable = false; // allow using button when everything is ready
   },
 }
 </script>
