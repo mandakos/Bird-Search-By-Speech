@@ -3,7 +3,8 @@
     <h1>Lintulajin tunnistus puheesta</h1>
     <p>Paina nappia, ja sano ilmestyvä lintulaji.</p>
 
-    <button v-on:click="recognize">Aloita</button>
+    <button v-on:click="startRecognition">Aloita</button>
+    <button v-on:click="cancelRecognition" ref="stop" style="display: none;">Peruuta</button>
 
     <div>
         <p class="phrase" ref="phrase">Lintulaji...</p>
@@ -14,8 +15,9 @@
 </template>
 
 <script>
-import speechRecognition from '@/speech.js'
-import birdNames from '@/birdNames.json';
+import BirdNameRecognizer from '@/js/speech.js'
+import birdNames from '@/json/birdNames.json';
+import birdSpeciesInfo from '@/json/birdSpeciesInfo.json';
 
 export default {
   name: 'Hello',
@@ -24,15 +26,21 @@ export default {
         phrase: '',
         result: '',
         output: '',
+        stopBtn: '',
         jsonBirdNames: {},
-        jsonLength: ''
+        jsonLength: '',
+        recognizer: null
     };
   },
   methods: {
-    recognize: function (event) {
+    startRecognition: function (event) {
       var clickedElement = event.target;
       var newPhrase = this.newPhrase();
-      speechRecognition(clickedElement, newPhrase, this.phrase, this.result, this.output);
+      this.recognizer = new BirdNameRecognizer(clickedElement, newPhrase, this.phrase, this.result, this.output, this.stopBtn);
+      this.recognizer.startRecognizing();
+    },
+    cancelRecognition: function () {
+      this.recognizer.stopRecognizing();
     },
     countJsonLength: function () {
       var count = Object.keys(birdNames).length;
@@ -58,6 +66,7 @@ export default {
     this.phrase = this.$refs.phrase;
     this.result = this.$refs.result;
     this.output = this.$refs.output;
+    this.stopBtn = this.$refs.stop;
     this.countJsonLength();
   },
   created () {
