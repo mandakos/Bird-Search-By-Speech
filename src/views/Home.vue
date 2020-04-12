@@ -1,17 +1,11 @@
 <template>
   <div class="home">
-    <SpeechSearch/>
+    <h1>Lintuhaku puheella</h1>
+    <p>Voit hakea lintulajia nimen perusteella.</p>
+    <p>
+      Ennen puheen tunnistamista, sinun tulee sallia <br>
+      mikrofonin käyttö selaimessasi.
+    </p>
+    <router-link to="/lintuhaku" class="home-button btn">Aloita</router-link>
   </div>
 </template>
-
-<script>
-// @ is an alias to /src
-import SpeechSearch from '@/components/SpeechSearch.vue'
-
-export default {
-  name: 'Home',
-  components: {
-    SpeechSearch
-  }
-}
-</script>

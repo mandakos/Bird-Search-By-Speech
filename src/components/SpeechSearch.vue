@@ -1,9 +1,9 @@
 <template>
-  <div class="birdSearchMain">
+  <div class="birdSearchSpeech">
     <h1>Lintulajin tunnistus puheesta</h1>
 
-    <button v-on:click="startRecognition" v-bind:disabled="startDisable">Aloita</button>
-    <button v-on:click="cancelRecognition" ref="stop" style="display: none;">Peruuta</button>
+    <button class="btn" v-on:click="startRecognition" v-bind:disabled="startDisable">Aloita</button>
+    <button class="btn" v-on:click="cancelRecognition" ref="stop" style="display: none;">Peruuta</button>
 
     <div>
         <p class="speechResult" ref="output"></p>

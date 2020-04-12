@@ -1,0 +1,88 @@
+/* Colors */
+@body-bg-base: rgba(3,116,138,1);
+@body-bg-secondary: rgba(0,50,85,1);
+@body-color: #F5F6F7;
+@link-color: #F5F6F7;
+@link-hover-color: #60D269;
+@btn-bg: #21912A;
+@btn-color: #fff;
+
+/* Gutter */
+@gutter-sm: 1.5rem;
+@gutter-md: 4rem;
+@gutter-lg: 10rem;
+
+/* Border */
+@btn-border-radius: 0.5rem;
+
+/* Transitions */
+@btn-transform: scale(0.98);
+@btn-shadow: 5px 5px 5px rgba(0,0,0,0.1);
+
+/* Fonts */
+@font-family: 'Source Sans Pro', sans-serif;
+@font-family-bold: 'Arvo', serif;
+
+body {
+  background: @body-bg-base;
+  background: radial-gradient(circle, rgba(3,116,138,1) 0%, rgba(0,50,85,1) 100%);
+  color: @body-color;
+  font-family: @font-family;
+  height: 100vh;
+  padding: @gutter-sm;
+}
+
+#app {
+  text-align: center;
+}
+
+a {
+  color: @link-color;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.4s ease;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: @link-hover-color;
+  }
+}
+
+#nav {
+  padding: @gutter-sm;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.btn {
+  border-radius: @btn-border-radius;
+  display: block;
+  font-family: @font-family-bold;
+  font-size: 1rem;
+  letter-spacing: 0.1rem;
+  margin: auto;
+  padding: @gutter-sm;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.home-button {
+  background-color: @btn-bg;
+  color: @btn-color;
+  margin: auto;
+  max-width: 70%;
+
+  &:hover,
+  &:focus,
+  &:active {
+    box-shadow: @btn-shadow;
+    color: @btn-color;
+    transform: @btn-transform;
+  }
+}
+
+h1, h2, h3 {
+  font-family: @font-family-bold;
+}
