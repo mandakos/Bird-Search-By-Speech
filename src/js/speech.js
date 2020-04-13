@@ -5,7 +5,7 @@ var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
 class BirdNameRecognizer
 {
   startBtn = null;
-  diagnosticPara = null;
+  result = null;
   stopBtn = null;
   author = null;
   image = null;
@@ -15,17 +15,18 @@ class BirdNameRecognizer
   birdDescriptions = [];
   birdnamesFItoSCI = [];
   birdImageInfo = [];
+  resultContainer = null;
 
   recognition = null;
   grammar = null;
   speechRecognitionList = null;
   speechResult = "";
 
-  constructor(startBtn, diagnosticPara, stopBtn, desc, birdNames, birdnamesFItoSCI, 
-              birdInfo, author, img, imgAuth, imgInfo) 
+  constructor(startBtn, result, stopBtn, desc, birdNames, birdnamesFItoSCI, 
+              birdInfo, author, img, imgAuth, imgInfo, container) 
   {
     this.startBtn = startBtn;
-    this.diagnosticPara = diagnosticPara;
+    this.result = result;
     this.stopBtn = stopBtn;
     this.description = desc;
     this.birdNames = birdNames;
@@ -35,17 +36,19 @@ class BirdNameRecognizer
     this.image = img;
     this.imageAuthor = imgAuth;
     this.birdImageInfo = imgInfo;
+    this.resultContainer = container;
   }
 
   startRecognizing() {
     this.stopBtn.style.display = "block";
     this.startBtn.disabled = true;
     this.startBtn.textContent = 'Hetki...';
-    this.diagnosticPara.textContent = '';
+    this.result.innerHTML = '';
     this.description.textContent = '';
     this.author.textContent = '';
     this.imageAuthor.textContent = '';
-    this.image.src = '';
+    this.image.innerHTML = '';
+    this.resultContainer.classList.remove('isResult');
 
     this.grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + this.birdNames.join(' | ') + ' ;';
     this.recognition = new SpeechRecognition();
@@ -70,13 +73,28 @@ class BirdNameRecognizer
       // We then return the transcript property of the SpeechRecognitionAlternative object 
       var speechResult = event.results[0][0].transcript.toLowerCase();
 
+      // Count words in speech result and
+      // if there's more than one, try to find if one
+      // of them is bird species name
+      var words = speechResult.split(' ').length;
+      if(words > 1) {
+        var resultArr = speechResult.split(" ");
+
+        for(var i = 0; i < words; i++) {
+          if (this.birdnamesFItoSCI.has(resultArr[i])) {
+            speechResult = resultArr[i];
+          }
+        }
+      }
+
       // check if speechResult can be found in finnish bird names
       if(this.birdnamesFItoSCI.get(speechResult)) {
+        this.resultContainer.classList.add('isResult');
         var birdSCIName = this.birdnamesFItoSCI.get(speechResult);
 
         // show specie name in all available languages
-        this.diagnosticPara.innerHTML = '<h2 class="speech-result-correct">' + speechResult + '</h2>' +
-                                        '<span class="specie-scientic-name">'+ birdSCIName + '</span>';
+        this.result.innerHTML = '<h1 class="speech-result-correct">' + speechResult + '</h1>' +
+                                        '<p class="specie-scientic-name">'+ birdSCIName + '</p>';
 
 
         // get description text by scientific name and
@@ -94,7 +112,7 @@ class BirdNameRecognizer
 
         // set bird image by scientific name
         var baseUrl = window.location.origin;
-        this.image.src = baseUrl +  '/img/bird-images/' + birdSCIName + '.jpg';
+        this.image.innerHTML = '<img class="bird-image" src="' + baseUrl +  '/img/bird-images/' + birdSCIName + '.jpg">';
 
         // get bird image author and set in place
         for(var i = 0; i < this.birdImageInfo.length; i++) {
@@ -112,7 +130,7 @@ class BirdNameRecognizer
       }
       else {
         // if not recognized as bird name in finnish
-        this.diagnosticPara.innerHTML = 'Sanoit: <span class="speech-result-invalid">' + speechResult + 
+        this.result.innerHTML = 'Sanoit: <span class="speech-result-invalid">' + speechResult + 
           '</span>. Tämä ei taida olla lintulaji, ainakaan suomessa. Kokeile uudestaan?';
       }
 
@@ -123,13 +141,17 @@ class BirdNameRecognizer
     })
 
     this.recognition.addEventListener('error', event => {
-      this.diagnosticPara.textContent = 'Tapahtui virhe: ' + event.error;
-      this.stopRecognizing();
+      this.result.innerHTML = 'Puhetta ei tunnistettu, kokeile uudestaan. :)';
     })
 
     this.recognition.addEventListener('audiostart', event => {
       //Fired when the user agent has started to capture audio.
       this.startBtn.textContent = 'Sano lintulaji...';
+    })
+
+        
+    this.recognition.addEventListener('nomatch', event => {
+      this.result.innerHTML = 'Puhetta ei tunnistettu, kokeile uudestaan. :)';
     })
 
     /*
@@ -141,11 +163,6 @@ class BirdNameRecognizer
     this.recognition.onaudioend = function(event) {
         //Fired when the user agent has finished capturing audio.
         console.log('SpeechRecognition.onaudioend');
-    }
-    
-    this.recognition.onnomatch = function(event) {
-        //Fired when the speech recognition service returns a final result with no significant recognition. This may involve some degree of recognition, which doesn't meet or exceed the confidence threshold.
-        console.log('SpeechRecognition.onnomatch');
     }
     
     this.recognition.onsoundstart = function(event) {
@@ -173,7 +190,11 @@ class BirdNameRecognizer
     this.recognition.stop();
     this.startBtn.disabled = false;
     this.stopBtn.style.display = "none";
-    this.startBtn.textContent = 'Aloita uudestaan';
+    this.startBtn.textContent = 'Etsi uudestaan';
+
+    if(this.result.innerHTML === '') {
+      this.result.innerHTML = 'Puhetta ei tunnistettu, kokeile uudestaan. :)';
+    }
   }
 
 }

@@ -1,13 +1,13 @@
 <template>
-  <div class="birdSearchSpeech">
-    <h1>Lintulajin tunnistus puheesta</h1>
+  <div class="birdSearchSpeech result-container" ref="container">
+    <h1 class="search-title">Etsi lintulajin nimellä</h1>
 
-    <button class="btn" v-on:click="startRecognition" v-bind:disabled="startDisable">Aloita</button>
+    <button class="btn" v-on:click="startRecognition" ref="start" v-bind:disabled="startDisable">Aloita puhe</button>
     <button class="btn" v-on:click="cancelRecognition" ref="stop" style="display: none;">Peruuta</button>
 
     <div>
         <p class="speech-result" ref="output"></p>
-        <img src="" class="bird-image" ref="image">
+        <div class="bird-image-container" ref="image"></div>
         <p class="bird-image-author" ref="imageAuthor"></p>
         <p class="bird-description" ref="description"></p>
         <p class="bird-description-author" ref="author"></p>
@@ -27,12 +27,14 @@ export default {
   data: function() {
     return {
         output: '',
+        startBtn: '',
         stopBtn: '',
         description: '',
         author: '',
         image: '',
         imageAuthor: '',
         speechInput: '',
+        container: '',
         startDisable: true,
         jsonBirdNamesSCIandFI: [],
         jsonBirdNamesFI: [],
@@ -44,14 +46,18 @@ export default {
   },
   methods: {
     startRecognition: function (event) {
-      var clickedElement = event.target;
+      if(event) {
+        var startBtn = event.target;
+      } else {
+        var startBtn = this.startBtn;
+      }
 
       // Create new speech recognition object and
       // pass all needed elements and arrays
-      this.recognizer = new BirdNameRecognizer(clickedElement, this.output, this.stopBtn, this.description, 
+      this.recognizer = new BirdNameRecognizer(startBtn, this.output, this.stopBtn, this.description, 
                                               this.jsonBirdNamesFI, this.jsonBirdNamesSCIandFI,
                                               this.jsonBirdInfo, this.author, this.image, this.imageAuthor,
-                                              this.jsonBirdImgInfo);
+                                              this.jsonBirdImgInfo, this.container);
       this.recognizer.startRecognizing();
     },
     cancelRecognition: function () {
@@ -84,7 +90,10 @@ export default {
     this.author = this.$refs.author;
     this.image = this.$refs.image;
     this.imageAuthor = this.$refs.imageAuthor;
-    this.startDisable = false; // allow using button when everything is ready
+    this.container = this.$refs.container;
+    this.startBtn = this.$refs.start;
+    //this.startDisable = false; // allow using button when everything is ready
+    this.startRecognition();
   },
   created () {
     // create two custom arrays for finnish names and fi=>sci names
@@ -109,10 +118,6 @@ export default {
     // and set in variables
     this.jsonBirdInfo = this.jsonToArray(birdSpeciesInfo);
     this.jsonBirdImgInfo = this.jsonToArray(birdImageInfo);
-
-    console.log(this.jsonBirdInfo);
-    console.log(this.jsonBirdImgInfo);
-
   },
 }
 </script>

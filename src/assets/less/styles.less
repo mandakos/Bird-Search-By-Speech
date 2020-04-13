@@ -2,12 +2,14 @@
 @body-bg-base: rgba(3,116,138,1);
 @body-bg-secondary: rgba(0,50,85,1);
 @body-color: #F5F6F7;
-@link-color: #F5F6F7;
-@link-hover-color: #60D269;
+@link-color: #60D269;
+@link-hover-color: #21912A;
 @btn-bg: #21912A;
 @btn-color: #fff;
+@transparent-black: rgba(0,0,0,0.1);
 
 /* Gutter */
+@gutter-xs: 0.5rem;
 @gutter-sm: 1.5rem;
 @gutter-md: 4rem;
 @gutter-lg: 10rem;
@@ -16,31 +18,52 @@
 @btn-border-radius: 0.5rem;
 
 /* Transitions */
+@transition-normal: all 0.4s ease;
 @btn-transform: scale(0.98);
-@btn-shadow: 5px 5px 5px rgba(0,0,0,0.1);
+@btn-shadow: 5px 5px 5px @transparent-black;
 
 /* Fonts */
-@font-family: 'Source Sans Pro', sans-serif;
-@font-family-bold: 'Arvo', serif;
+@font: 'Nunito Sans', sans-serif;
+@font-bold: 'Oswald', sans-serif;
+@font-decorative: 'Montserrat Alternates', sans-serif;
+@btn-font: @font;
+@btn-font-weight: 900;
+@font-xxs: 0.8rem;
+@font-xs: 1rem;
+@font-sm: 1.4rem;
+@font-md: 2rem;
+@font-lg: 3rem;
+@font-xl: 4rem;
+
+/* Device widths */
+@tablet: 770px;
+@small-desktop: 990px;
+@desktop: 1200px;
 
 body {
   background: @body-bg-base;
   background: radial-gradient(circle, rgba(3,116,138,1) 0%, rgba(0,50,85,1) 100%);
   color: @body-color;
-  font-family: @font-family;
+  font-family: @font;
+  font-size: @font-xs;
   height: 100vh;
-  padding: @gutter-sm;
+  margin: 0;
 }
 
 #app {
   text-align: center;
+
+  @media only screen and (min-width: @tablet) {
+    margin: auto;
+    max-width: 60%;
+  }
 }
 
 a {
   color: @link-color;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.4s ease;
+  transition: @transition-normal;
 
   &:hover,
   &:focus,
@@ -59,8 +82,9 @@ a {
 .btn {
   border-radius: @btn-border-radius;
   display: block;
-  font-family: @font-family-bold;
+  font-family: @btn-font;
   font-size: 1rem;
+  font-weight: @btn-font-weight;
   letter-spacing: 0.1rem;
   margin: auto;
   padding: @gutter-sm;
@@ -68,21 +92,105 @@ a {
   text-transform: uppercase;
 }
 
-.home-button {
-  background-color: @btn-bg;
-  color: @btn-color;
-  margin: auto;
-  max-width: 70%;
+/* Home page */
+.home {
+  padding: @gutter-sm;
 
-  &:hover,
-  &:focus,
-  &:active {
-    box-shadow: @btn-shadow;
+  &-button {
+    background-color: @btn-bg;
     color: @btn-color;
-    transform: @btn-transform;
+    margin: @gutter-md auto;
+    max-width: 70%;
+
+    &:hover,
+    &:focus,
+    &:active {
+      box-shadow: @btn-shadow;
+      color: @btn-color;
+      transform: @btn-transform;
+    }
+  }
+
+  &-license-description {
+    background-color: @transparent-black;
+    font-size: @font-xxs;
+    margin-top: @gutter-md;
+    padding: @gutter-sm @gutter-sm;
   }
 }
 
+/* Typography */
 h1, h2, h3 {
-  font-family: @font-family-bold;
+  font-family: @font-bold;
+}
+
+h1 {
+  font-size: @font-lg;
+  line-height: @font-lg;
+
+  @media only screen and (min-width: @tablet) {
+    font-size: @font-xl;
+    line-height: @font-xl;
+  }
+
+  &.search-title {
+    font-size: @font-md;
+    line-height: @font-md;
+  }
+}
+
+.ingress {
+  font-family: @font-decorative;
+  font-size: @font-sm;
+
+  @media only screen and (min-width: @tablet) {
+    font-size: @font-md;
+    line-height: @font-md;
+  }
+}
+
+/* Speech recognition results */
+.speech-result-correct {
+  text-transform: uppercase;
+}
+
+.specie-scientic-name {
+  font-family: @font-decorative;
+}
+
+.bird-image {
+  height: 400px;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.birdSearchSpeech {
+  padding-top: @gutter-md;
+  transition: @transition-normal;
+}
+
+.isResult {
+  padding-top: @gutter-sm;
+
+  .search-title {
+    display: none;
+  }
+
+  .bird-description {
+    padding: @gutter-sm;
+  }
+
+  .bird-description-author,
+  .bird-image-author {
+    background-color: @transparent-black;
+    font-size: @font-xxs;
+    margin-top: @gutter-md;
+    padding: @gutter-sm @gutter-sm;
+  }
+
+  .bird-image-author {
+    margin: 0;
+    padding: @gutter-xs @gutter-sm;
+  }
 }
