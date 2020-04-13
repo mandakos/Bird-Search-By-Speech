@@ -6,6 +6,6 @@
       Ennen puheen tunnistamista, sinun tulee sallia <br>
       mikrofonin käyttö selaimessasi.
     </p>
-    <router-link to="/lintuhaku" class="home-button btn">Aloita</router-link>
+    <router-link to="/lintuhaku" class="home-button btn">Etsi lintua nimellä</router-link>
   </div>
 </template>

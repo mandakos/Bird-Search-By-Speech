@@ -6,9 +6,12 @@
     <button class="btn" v-on:click="cancelRecognition" ref="stop" style="display: none;">Peruuta</button>
 
     <div>
-        <p class="speechResult" ref="output"></p>
-        <p class="birdDescription" ref="description"></p>
-        <p class="birdDescriptionAuthor" ref="author"></p>
+        <p class="speech-result" ref="output"></p>
+        <img src="" class="bird-image" ref="image">
+        <p class="bird-image-author" ref="imageAuthor"></p>
+        <p class="bird-description" ref="description"></p>
+        <p class="bird-description-author" ref="author"></p>
+        
     </div>
   </div>
 </template>
@@ -17,6 +20,7 @@
 import BirdNameRecognizer from '@/js/speech.js'
 import birdNames from '@/json/birdNames.json';
 import birdSpeciesInfo from '@/json/birdSpeciesInfo.json';
+import birdImageInfo from '@/json/imageAuthors.json';
 
 export default {
   name: 'BirdSearchBySpeech',
@@ -26,11 +30,14 @@ export default {
         stopBtn: '',
         description: '',
         author: '',
+        image: '',
+        imageAuthor: '',
         speechInput: '',
         startDisable: true,
         jsonBirdNamesSCIandFI: [],
         jsonBirdNamesFI: [],
         jsonBirdInfo: [],
+        jsonBirdImgInfo: [],
         recognizer: null,
         speechResult: ''
     };
@@ -38,9 +45,13 @@ export default {
   methods: {
     startRecognition: function (event) {
       var clickedElement = event.target;
+
+      // Create new speech recognition object and
+      // pass all needed elements and arrays
       this.recognizer = new BirdNameRecognizer(clickedElement, this.output, this.stopBtn, this.description, 
                                               this.jsonBirdNamesFI, this.jsonBirdNamesSCIandFI,
-                                              this.jsonBirdInfo, this.author);
+                                              this.jsonBirdInfo, this.author, this.image, this.imageAuthor,
+                                              this.jsonBirdImgInfo);
       this.recognizer.startRecognizing();
     },
     cancelRecognition: function () {
@@ -71,9 +82,12 @@ export default {
     this.stopBtn = this.$refs.stop;
     this.description = this.$refs.description;
     this.author = this.$refs.author;
+    this.image = this.$refs.image;
+    this.imageAuthor = this.$refs.imageAuthor;
+    this.startDisable = false; // allow using button when everything is ready
   },
   created () {
-    // create two arrays for finnish names and fi=>sci names
+    // create two custom arrays for finnish names and fi=>sci names
     var birdArray = this.jsonToArray(birdNames);
     var birdFinnishNames = [];
     var birdSCIandFInames = new Map();
@@ -91,10 +105,14 @@ export default {
     this.jsonBirdNamesFI = birdFinnishNames;
     this.jsonBirdNamesSCIandFI = birdSCIandFInames;
 
+    // convert species info and image author jsons to arrays,
+    // and set in variables
     this.jsonBirdInfo = this.jsonToArray(birdSpeciesInfo);
-    console.log(this.jsonToArray(birdSpeciesInfo));
+    this.jsonBirdImgInfo = this.jsonToArray(birdImageInfo);
 
-    this.startDisable = false; // allow using button when everything is ready
+    console.log(this.jsonBirdInfo);
+    console.log(this.jsonBirdImgInfo);
+
   },
 }
 </script>

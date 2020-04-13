@@ -1,6 +1,6 @@
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
 var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
-var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+//var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
 
 class BirdNameRecognizer
 {
@@ -8,35 +8,44 @@ class BirdNameRecognizer
   diagnosticPara = null;
   stopBtn = null;
   author = null;
+  image = null;
+  imageAuthor = null;
   birdNames = [];
   description = null;
-  birdDescriptions = {};
+  birdDescriptions = [];
   birdnamesFItoSCI = [];
+  birdImageInfo = [];
 
   recognition = null;
   grammar = null;
   speechRecognitionList = null;
   speechResult = "";
 
-  constructor(startBtn, diagnosticPara, stopBtn, description, birdNames, birdnamesFItoSCI, birdInfo, author) 
+  constructor(startBtn, diagnosticPara, stopBtn, desc, birdNames, birdnamesFItoSCI, 
+              birdInfo, author, img, imgAuth, imgInfo) 
   {
     this.startBtn = startBtn;
     this.diagnosticPara = diagnosticPara;
     this.stopBtn = stopBtn;
-    this.description = description;
+    this.description = desc;
     this.birdNames = birdNames;
     this.birdnamesFItoSCI = birdnamesFItoSCI;
     this.birdDescriptions = birdInfo;
     this.author = author;
+    this.image = img;
+    this.imageAuthor = imgAuth;
+    this.birdImageInfo = imgInfo;
   }
 
   startRecognizing() {
     this.stopBtn.style.display = "block";
     this.startBtn.disabled = true;
-    this.startBtn.textContent = 'Sano lintulaji...';
+    this.startBtn.textContent = 'Hetki...';
     this.diagnosticPara.textContent = '';
     this.description.textContent = '';
     this.author.textContent = '';
+    this.imageAuthor.textContent = '';
+    this.image.src = '';
 
     this.grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + this.birdNames.join(' | ') + ' ;';
     this.recognition = new SpeechRecognition();
@@ -60,18 +69,51 @@ class BirdNameRecognizer
       // The second [0] returns the SpeechRecognitionAlternative at position 0.
       // We then return the transcript property of the SpeechRecognitionAlternative object 
       var speechResult = event.results[0][0].transcript.toLowerCase();
-      this.diagnosticPara.textContent = speechResult;
 
+      // check if speechResult can be found in finnish bird names
       if(this.birdnamesFItoSCI.get(speechResult)) {
         var birdSCIName = this.birdnamesFItoSCI.get(speechResult);
-        this.description.textContent = birdSCIName;
 
+        // show specie name in all available languages
+        this.diagnosticPara.innerHTML = '<h2 class="speech-result-correct">' + speechResult + '</h2>' +
+                                        '<span class="specie-scientic-name">'+ birdSCIName + '</span>';
+
+
+        // get description text by scientific name and
+        // add a link to Lintuatlas
         for(var i = 0; i < this.birdDescriptions.length; i++) {
           if(this.birdDescriptions[i][0] === birdSCIName) {
-            this.description.textContent = this.birdDescriptions[i][1].post_content;
-            this.author.textContent = "Teksti: " + this.birdDescriptions[i][1].post_author;
+            this.description.innerHTML = '<p class="description-text">' + this.birdDescriptions[i][1].post_content + '</p>'+
+                                          '<a class="atlas-link" target="_blank" href="http://atlas3.lintuatlas.fi/tulokset/laji/' + 
+                                          speechResult + '">Katso pesimäalueiden levinneisyys Lintuatlaksessa</a>';
+            this.author.innerHTML = 'Lajiteksti: <a target="_blank" href="http://atlas3.lintuatlas.fi/">Suomen III lintuatlas</a> – ' + 
+                                      this.birdDescriptions[i][1].post_author +
+                                      ', Luonnontieteellinen keskusmuseo Luomus. <br><a class="cc-link" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.fi">Creative Commons Nimeä-Epäkaupallinen-Tarttuva</a>';
           }
         }
+
+        // set bird image by scientific name
+        var baseUrl = window.location.origin;
+        this.image.src = baseUrl +  '/img/bird-images/' + birdSCIName + '.jpg';
+
+        // get bird image author and set in place
+        for(var i = 0; i < this.birdImageInfo.length; i++) {
+          if(this.birdImageInfo[i][0] === birdSCIName) {
+            this.imageAuthor.innerHTML = 'Kuva: <a target="_blank" href="' + 
+                                          this.birdImageInfo[i][1][0].photographerUrl + '">' + 
+                                          this.birdImageInfo[i][1][0].PhotographerName + '</a>' +
+                                          ' | <a target="_blank" href="' + 
+                                          this.birdImageInfo[i][1][0].imageSourceUrl + '">' + 
+                                          this.birdImageInfo[i][1][0].imageName + '</a>'+
+                                          ' | <a target="_blank" href="' + 
+                                          this.birdImageInfo[i][1][0].license + '">Lisenssi</a>';
+          }
+        }
+      }
+      else {
+        // if not recognized as bird name in finnish
+        this.diagnosticPara.innerHTML = 'Sanoit: <span class="speech-result-invalid">' + speechResult + 
+          '</span>. Tämä ei taida olla lintulaji, ainakaan suomessa. Kokeile uudestaan?';
       }
 
     })
@@ -85,16 +127,16 @@ class BirdNameRecognizer
       this.stopRecognizing();
     })
 
+    this.recognition.addEventListener('audiostart', event => {
+      //Fired when the user agent has started to capture audio.
+      this.startBtn.textContent = 'Sano lintulaji...';
+    })
+
     /*
     this.recognition.addEventListener('end', event => {
       //Fired when the speech recognition service has disconnected.
       console.log('SpeechRecognition.onend');
     })
-
-    this.recognition.onaudiostart = function(event) {
-        //Fired when the user agent has started to capture audio.
-        console.log('SpeechRecognition.onaudiostart');
-    }
     
     this.recognition.onaudioend = function(event) {
         //Fired when the user agent has finished capturing audio.
