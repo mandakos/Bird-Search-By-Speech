@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import SpeechSearchView from '../views/SpeechSearchView.vue'
+import SearchByName from '../views/SearchByName.vue'
+import SearchByCharacteristics from '../views/SearchByCharacteristics.vue'
 
 Vue.use(VueRouter)
 
@@ -12,9 +13,14 @@ Vue.use(VueRouter)
     component: Home
   },
   {
-    path: '/lintuhaku',
-    name: 'SpeechSearchView',
-    component: SpeechSearchView
+    path: '/lintuhaku-nimella',
+    name: 'SearchByName',
+    component: SearchByName
+  },
+  {
+    path: '/lintuhaku-tuntomerkeilla',
+    name: 'SearchByCharacteristics',
+    component: SearchByCharacteristics
   }
 ]
 

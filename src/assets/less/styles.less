@@ -1,12 +1,18 @@
 /* Colors */
 @body-bg-base: rgba(3,116,138,1);
 @body-bg-secondary: rgba(0,50,85,1);
+@transparent-black: rgba(0,0,0,0.1);
 @body-color: #F5F6F7;
 @link-color: #60D269;
 @link-hover-color: #21912A;
 @btn-bg: #21912A;
 @btn-color: #fff;
-@transparent-black: rgba(0,0,0,0.1);
+@btn-cancel-bg: @body-bg-secondary;
+@btn-cancel-color: #fff;
+@rec-icon-bg: rgba(76, 191, 84, 0.2);
+@rec-icon-bg-2: rgba(76, 191, 84, 1);
+@rec-icon-inner-bg: rgb(33, 145, 42);
+@rec-icon-inner-inner-bg: #1a601e;
 
 /* Gutter */
 @gutter-xs: 0.5rem;
@@ -52,11 +58,10 @@ body {
 
 #app {
   text-align: center;
+}
 
-  @media only screen and (min-width: @tablet) {
-    margin: auto;
-    max-width: 60%;
-  }
+.speechSearchView {
+  height: 100vh;
 }
 
 a {
@@ -90,16 +95,107 @@ a {
   padding: @gutter-sm;
   text-align: center;
   text-transform: uppercase;
+
+  &-start {
+    margin-bottom: @gutter-sm;
+  }
+
+  &-cancel {
+    background-color: @btn-cancel-bg;
+    border-color: transparent;
+    color: @btn-cancel-color;
+    margin-top: @gutter-sm;
+    padding: @gutter-xs @gutter-sm;
+  }
+}
+
+.recording-icon {
+  &-circle {
+    align-items: center;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+  }
+
+  &-mic {
+    font-size: 3rem;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%,-50%);
+  }
+
+  &-wrapper {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 160px;
+    margin: auto;
+    position: relative;
+    width: 160px;
+  }
+
+  .inner-circle {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%,-50%);
+  }
+}
+
+@keyframes lgCircleSize {
+  from {
+    background-color: @rec-icon-bg;
+    height: 125px;
+    width: 125px;
+  }
+  to {
+    background-color: @rec-icon-bg-2;
+    height: 160px;
+    width: 160px;
+  }
+}
+
+.recognizing {
+  .recording-icon {
+    background-color: @rec-icon-bg;
+    height: 150px;
+    width: 150px;
+    animation-name: lgCircleSize;
+
+    &-circle {
+      animation-duration: 0.5s;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+
+    &-inner {
+      background-color: @rec-icon-inner-bg;
+      height: 120px;
+      width: 120px;
+  
+      &-inner {
+        background-color: @rec-icon-inner-inner-bg;
+        height: 100px;
+        width: 100px;
+      }
+    }
+  }
 }
 
 /* Home page */
 .home {
   padding: @gutter-sm;
 
+  @media only screen and (min-width: @tablet) {
+    margin: auto;
+    max-width: 60%;
+  }
+
   &-button {
     background-color: @btn-bg;
     color: @btn-color;
-    margin: @gutter-md auto;
+    margin: @gutter-sm auto;
     max-width: 70%;
 
     &:hover,
@@ -113,9 +209,12 @@ a {
 
   &-license-description {
     background-color: @transparent-black;
+    bottom: 0;
     font-size: @font-xxs;
-    margin-top: @gutter-md;
+    left: 0;
     padding: @gutter-sm @gutter-sm;
+    position: relative;
+    right: 0;
   }
 }
 
@@ -150,19 +249,36 @@ h1 {
 }
 
 /* Speech recognition results */
+.result-container {
+  padding: @gutter-sm;
+
+  @media only screen and (min-width: @tablet) {
+    margin: auto;
+    max-width: 900px;
+    width: 60%;
+  }
+}
+
 .speech-result-correct {
   text-transform: uppercase;
 }
 
-.specie-scientic-name {
+.scientific-name {
   font-family: @font-decorative;
 }
 
 .bird-image {
-  height: 400px;
-  width: 100%;
-  object-fit: cover;
-  object-position: center;
+  height: 600px;
+  max-width: 100%;
+}
+
+.bird-image-author {
+  display: none;
+}
+
+.bird-image-container {
+  height: 0;
+  transition: height 1.2s ease-in-out;
 }
 
 .birdSearchSpeech {
@@ -170,27 +286,85 @@ h1 {
   transition: @transition-normal;
 }
 
-.isResult {
-  padding-top: @gutter-sm;
+.bird-description {
+  opacity: 0;
+  transition: opacity 1s linear 1.2s;
+}
 
-  .search-title {
-    display: none;
+.search-title {
+  display: none;
+}
+
+.bird-description {
+  padding: @gutter-sm;
+  opacity: 1;
+}
+
+.bird-description-author,
+.bird-image-author {
+  background-color: @transparent-black;
+  font-size: @font-xxs;
+  padding: @gutter-sm @gutter-sm;
+}
+
+.bird-image-author {
+  display: block;
+  margin: 0;
+  padding: @gutter-xs @gutter-sm;
+}
+
+.bird-image-container {
+  height: 400px;
+  overflow: hidden;
+
+  @media only screen and (min-width: @tablet) {
+    height: 500px;
+  }
+}
+
+.name-and-sound {
+  @media only screen and (min-width: @tablet) {
+    align-items: flex-end;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.bird-name {
+  @media only screen and (min-width: @tablet) {
+    max-width: 50%;
   }
 
-  .bird-description {
-    padding: @gutter-sm;
+  &-title,
+  &-scientific {
+    @media only screen and (min-width: @tablet) {
+      text-align: left;
+    }
   }
 
-  .bird-description-author,
-  .bird-image-author {
-    background-color: @transparent-black;
-    font-size: @font-xxs;
-    margin-top: @gutter-md;
-    padding: @gutter-sm @gutter-sm;
+  &-title {
+    margin-bottom: 0;
   }
+}
 
-  .bird-image-author {
-    margin: 0;
-    padding: @gutter-xs @gutter-sm;
+.bird-sound {
+  margin-right: 0;
+
+  @media only screen and (min-width: @tablet) {
+    max-width: 50%;
   }
+}
+
+.btn-play,
+.btn-pause {
+  font-size: 1.2rem;
+}
+
+.btn-refresh {
+  margin-left: 4rem;
+}
+
+.speech-synthesis {
+  display: block;
+  margin-top: 2.5rem;
 }

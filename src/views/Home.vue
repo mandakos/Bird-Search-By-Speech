@@ -4,16 +4,23 @@
       <h1>Lintuhaku puheen tunnistuksella</h1>
       <p class="ingress">Helppo lintuhaku, ilman kirjoittamista</p>
       <p>
-        Hae lintulajeja nopeasti puheella. Valitse haluatko etsiä lajia nimen vai tuntomerkkien perusteella. Muista antaa selaimelle lupa nauhoittaa ääntä (puhetta ei tallenneta, sitä käytetään vain sanojen tunnistamiseen)!
+        Hae lintulajeja nopeasti puheella. Muista antaa selaimelle lupa nauhoittaa ääntä.
       </p>
-      <router-link to="/lintuhaku" class="home-button btn">Etsi lintua nimellä</router-link>
+      <router-link to="/lintuhaku-nimella" class="home-button btn">Etsi lintua nimellä</router-link>
+      <router-link to="/lintuhaku-tuntomerkeilla" class="home-button btn">Etsi lintua tuntomerkeillä</router-link>
     </div>
-    <div class="home-license-description">
-      <p>
-        Tämän sivuston lintujen nimet, lajitekstit ja kuvat
-        on haettu Suomen Lintuatlaksen avoimen datan lähteistä.
-        <a target="_blank" href="http://atlas3.lintuatlas.fi/taustaa/kaytto">Lue täältä lisää Lintuatlaksen käyttöoikeuksista.</a>
-      </p>
-    </div>
+    <Footer/>
   </div>
 </template>
+
+<script>
+// @ is an alias to /src
+import Footer from '@/components/Footer.vue'
+
+export default {
+  name: 'Home',
+  components: {
+    Footer
+  }
+}
+</script>

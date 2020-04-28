@@ -3,18 +3,20 @@
     <div id="nav">
       <router-link to="/"><font-awesome-icon icon="times" /></router-link>
     </div>
-    <SpeechSearch/>
+    <SpeciesSearch/>
+    <Footer/>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import SpeechSearch from '@/components/SpeechSearch.vue'
+import SpeciesSearch from '@/components/SpeciesSearch.vue'
+import Footer from '@/components/Footer.vue'
 
 export default {
-  name: 'SpeechSearchView',
+  name: 'SearchByName',
   components: {
-    SpeechSearch
+    SpeciesSearch,
+    Footer
   }
 }
 </script>
