@@ -1,5 +1,5 @@
 <template>
-    <div class="home-license-description">
+    <div class="license-description">
       <p>
         Tämän sivuston lintujen nimet, lajitekstit ja kuvat
         on haettu Suomen Lintuatlaksen avoimen datan lähteistä.<br>

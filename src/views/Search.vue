@@ -1,21 +1,21 @@
 <template>
   <div class="speechSearchView">
     <div id="nav">
-      <router-link to="/"><font-awesome-icon icon="times" /></router-link>
+      <router-link to="/lintuhaku"><font-awesome-icon icon="times" class="close-icon" /></router-link>
     </div>
-    <SpeciesSearch/>
+    <SpeechSearch/>
     <Footer/>
   </div>
 </template>
 
 <script>
-import SpeciesSearch from '@/components/SpeciesSearch.vue'
+import SpeechSearch from '@/components/SpeechSearch.vue'
 import Footer from '@/components/Footer.vue'
 
 export default {
-  name: 'SearchByName',
+  name: 'Search',
   components: {
-    SpeciesSearch,
+    SpeechSearch,
     Footer
   }
 }

@@ -1,26 +1,20 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import SearchByName from '../views/SearchByName.vue'
-import SearchByCharacteristics from '../views/SearchByCharacteristics.vue'
+import SearchBirds from '../views/Search.vue'
 
 Vue.use(VueRouter)
 
   const routes = [
   {
-    path: '/',
+    path: '/lintuhaku',
     name: 'Home',
     component: Home
   },
   {
-    path: '/lintuhaku-nimella',
-    name: 'SearchByName',
-    component: SearchByName
-  },
-  {
-    path: '/lintuhaku-tuntomerkeilla',
-    name: 'SearchByCharacteristics',
-    component: SearchByCharacteristics
+    path: '/lintuhaku/puhu',
+    name: 'SearchBirds',
+    component: SearchBirds
   }
 ]
 

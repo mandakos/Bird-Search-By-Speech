@@ -2,9 +2,17 @@
   <div class="bird-search-wrapper" ref="container">
     <div class="birdSearchSpeech result-container">
       <h1 class="search-title">Etsi lintulajin nimellä</h1>
-
-      <button class="btn btn-start" v-on:click="startRecognition" ref="start" v-bind:disabled="startDisable">Aloita puhe</button>
-
+      <h1>
+        <font-awesome-icon icon="crow" class="crow-icon" />
+        <font-awesome-icon icon="microphone" class="speech-home-icon" />
+      </h1>
+      <button class="btn btn-start" v-on:click="startRecognition" ref="start" v-bind:disabled="startDisable">Odota...</button>
+      <div class="notSupported" style="display: none;" ref="notSupported">
+        <p>Valitettavasti selaimesi ei tue puheentunnistusta.</p>
+        <p><a href="/lintuhaku">Palaa takaisin</a> tai hae kirjoittamalla alle lintulajin nimi tai tuntomerkit<br>
+        (paina ENTER hakeaksesi):</p>
+        <input type="text" size="60" id="fallback-search" v-on:keyup.enter="submitForm" ref="notSupportedForm">
+      </div>
       <div class="recording-icon-wrapper" style="display: none;" ref="mic">
         <div class="recording-icon recording-icon-circle">
           <div class="recording-icon-circle recording-icon-inner inner-circle">
@@ -14,58 +22,61 @@
           </div>
         </div>
       </div>
-
       <button class="btn btn-cancel" v-on:click="cancelRecognition" ref="stop" style="display: none;">Peruuta</button>
       <p class="speech-result" id="detect-speech" ref="output" v-show="!isBird"></p>
-
       <div v-if="isBird">
+        <ul v-if="bestMatches.length > 0" class="best-matches">
+          <li>Katso myös: </li>
+          <li class="best-matches-li" v-for="item in bestMatches" :key="item">
+            <a href="#" class="best-matches-link" @click="getBirdInfo(item)">{{item}}</a>
+          </li>
+        </ul>
+
         <div class="name-and-sound">
           <div class="bird-name">
             <h1 class="bird-name-title speech-result-correct">{{birdFIname}}</h1>
             <p class="bird-name-scientific scientific-name">{{birdSCIname}}</p>
           </div>
-
-          <div class="bird-sound">
+          <div class="bird-listen-desc">
             <div class="speech-synthesis">
               <a href="#" class="btn-play" v-if="!this.isSpeaking && !this.speakStarted" @click="startSpeech"><font-awesome-icon icon="play"/> Kuuntele lajikuvaus</a>
-              <a href="#" class="btn-play" v-if="!this.isSpeaking && this.speakStarted" @click="resumeSpeech()"><font-awesome-icon icon="play"/></a>
+              <a href="#" class="btn-play" v-if="!this.isSpeaking && this.speakStarted" @click="resumeSpeech"><font-awesome-icon icon="play"/></a>
               <a href="#" class="btn-pause" v-if="this.isSpeaking" @click="pauseSpeech"><font-awesome-icon icon="pause"/></a>
               <a href="#" class="btn-refresh" v-if="this.speakStarted" @click="startSpeech"><font-awesome-icon icon="redo"/></a>
             </div>
           </div>
         </div>
-
         <div class="bird-image-container">
           <img clas="bird-image" v-bind:src="image" /> 
         </div>
-
         <p class="bird-image-author">
+          Kuva: 
           <a target="_blank" v-bind:href="imageAuthorUrl">{{imageAuthor}}</a> | 
           <a target="_blank" v-bind:href="imageUrl">{{imageName}}</a> | 
           <a target="_blank" v-bind:href="imageLicense">Lisenssi</a>
         </p>
-
-        <iframe v-if="isSound" v-bind:src='sound' scrolling='no' frameborder='0' width='340' height='115'></iframe>
-
+        <div class="bird-audio">
+          <iframe v-if="isSound" v-bind:src='sound' scrolling='no' frameborder='0' width='340' height='115'></iframe>
+        </div>
         <p class="bird-description">{{description}}</p>  
         <p v-html="extraLink"></p>
       </div>
     </div>
-      <p class="bird-description-author" v-html="author"></p>
+    <p v-if="isBird" class="bird-description-author" v-html="author"></p>
   </div>
 </template>
 
 <script>
-import {SpeechRecognizer,NotSpeechRecognizer} from '@/js/recognizeSpeech.js'
-import {getBirdByName} from '@/js/getBirdInfo.js'
+import {SpeechRecognizer} from '@/js/recognizeSpeech.js'
+import {getBirdFromSpeech} from '@/js/getBirdInfo.js'
 import {startSpeech} from '@/js/speak.js';
 import {pauseSpeech} from '@/js/speak.js';
 import {resumeSpeech} from '@/js/speak.js';
 import {stopSpeech} from '@/js/speak.js';
-import axios from 'axios';
+//import axios from 'axios';
 
 export default {
-  name: 'BirdSearchBySpeech',
+  name: 'SpeechSearch',
   data: function() {
     return {
         birdFIname: '',
@@ -85,33 +96,35 @@ export default {
         sound: '',
         isSound: false,
         container: '',
+        notSupported: '',
         mic: '',
         startDisable: true,
         recognizer: null,
         isBird: false,
         isSpeaking: false,
-        speakStarted: false
+        speakStarted: false,
+        bestMatches: ''
     };
   },
   methods: {
     startRecognition: function (event) {
-
       stopSpeech();
       this.isSpeaking = false;
       this.speakStarted = false;
       this.isBird = false;
       this.isSound = false;
+      var startButton = this.startBtn;
 
       if(event) {
-        var startBtn = event.target;
-      } else {
-        var startBtn = this.startBtn;
+        startButton = event.target;
       }
 
       // Create new speech recognition object and
       // pass all needed elements and arrays
+      
       this.recognizer = new SpeechRecognizer(
-        startBtn, this.output, this.stopBtn, this.container, this.mic, "name"
+        startButton, this.output, this.stopBtn, 
+        this.container, this.mic, this.notSupported
       );
       this.recognizer.startRecognizing();
 
@@ -121,7 +134,7 @@ export default {
       this.recognizer.abortRecognizing();
     },
     getBirdInfo: function(speech) {
-      var birdInfo = getBirdByName(speech);
+      var birdInfo = getBirdFromSpeech(speech.toLowerCase());
 
       if(birdInfo) {
 
@@ -131,7 +144,10 @@ export default {
 
         if(birdInfo.sciName) {
           this.birdSCIname = birdInfo.sciName;
-          this.getBirdSound(this.birdSCIname);
+
+          /*if(this.birdSCIname) {
+            this.getBirdSound(this.birdSCIname);
+          }*/
         }
 
         if(birdInfo.imgInfo){
@@ -151,11 +167,18 @@ export default {
         if(birdInfo.descAuthor){
           this.extraLink = '<a class="atlas-link" target="_blank" href="http://atlas3.lintuatlas.fi/tulokset/laji/' + 
                             birdInfo.fiName + '">Katso pesimäalueiden levinneisyys Lintuatlaksessa</a>';
-          this.author = 'Lajiteksti: <a target="_blank" href="http://atlas3.lintuatlas.fi/">' +
-                        'Suomen III lintuatlas</a>' + birdInfo.descAuthor +
-                        ', Luonnontieteellinen keskusmuseo Luomus. <br>' + 
+          this.author = '<b>Lajiteksti: </b>' + birdInfo.descAuthor + ', <a target="_blank" href="http://atlas3.lintuatlas.fi/">' +
+                        'Suomen III lintuatlas</a>,<br>' + 'Luonnontieteellinen keskusmuseo Luomus. <br>' + 
                         '<a class="cc-link" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.fi">' + 
                         'Creative Commons Nimeä-Epäkaupallinen-Tarttuva</a>';
+        }
+
+        if(birdInfo.playAudio) {
+          this.startSpeech();
+        }
+
+        if(birdInfo.bestMatches) {
+          this.bestMatches = birdInfo.bestMatches;
         }
 
         this.isBird = true;
@@ -172,9 +195,11 @@ export default {
       observer.observe(targetNode, config);
     },
     startSpeech: function() {
-      startSpeech(this.description);
-      this.isSpeaking = true;
-      this.speakStarted = true;
+      if(this.description) {
+        startSpeech(this.description);
+        this.isSpeaking = true;
+        this.speakStarted = true;
+      }
     },
     resumeSpeech: function() {
       resumeSpeech();
@@ -184,10 +209,11 @@ export default {
       pauseSpeech();
       this.isSpeaking = false;
     },
+    /* API not supporting CORS requests for now
     getBirdSound: function(sciName) {
       var apiBase = 'https://www.xeno-canto.org/api/2/recordings?query=';
       var apiName = sciName.split(' ').join('+');
-      var apiUrl = apiBase + apiName.toLowerCase();
+      var apiUrl = apiBase + apiName.toLowerCase() + '&cnt=finland';
 
       axios
       .get(apiUrl)
@@ -202,6 +228,12 @@ export default {
       .catch(error => {
         console.log(error)
       })
+    },
+    */
+    submitForm: function() {
+      var text = this.$refs.notSupportedForm.value;
+      var clearedText = text.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+      this.getBirdInfo(clearedText.toLowerCase());
     }
   },
   mounted () {
@@ -210,7 +242,7 @@ export default {
     this.container = this.$refs.container;
     this.startBtn = this.$refs.start;
     this.mic = this.$refs.mic;
-
+    this.notSupported = this.$refs.notSupported;
     this.startRecognition();
   }
 }

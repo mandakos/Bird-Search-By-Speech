@@ -13,8 +13,29 @@
       "räkättävä"
     ],
     "characteristic": [
-      "pitkä",
-      "pyrstö"
+      "pitkäpyrstöinen"
+    ]
+  },
+
+  "Fasaani": {
+    "type": [
+      "kanalintu",
+      "iso"
+    ],
+    "colors": [
+      "ruskea",
+      "sininen",
+      "punainen",
+      "valkoinen",
+      "kirjava"
+    ],
+    "sound": [
+      "rääkäisy",
+      "kotkottava"
+    ],
+    "characteristic": [
+      "pitkäpyrstöinen",
+      "tupsut"
     ]
   },
 
